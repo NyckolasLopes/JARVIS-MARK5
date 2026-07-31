@@ -4,28 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS Interface</title>
+    <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
-    <h1>JARVIS Interface</h1>
-    <div id="status"></div>
-    <button onclick="startListening()">Start Listening</button>
-    <button onclick="stopListening()">Stop Listening</button>
-    <button onclick="startVideo()">Start Video</button>
-    <button onclick="stopVideo()">Stop Video</button>
-    <button onclick="captureImage()">Capture Image</button>
-    <div id="messages"></div>
+    <header>
+        <h1>JARVIS</h1>
+        <div class="status-container">
+            <div class="status-indicator"></div>
+            <span id="status">System Starting...</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Animated Core Visualizer -->
+        <div class="visualizer-container">
+            <div class="jarvis-core">
+                <div class="core-inner"></div>
+            </div>
+        </div>
+
+        <!-- Chat History -->
+        <div class="chat-container">
+            <div class="chat-header">COMMUNICATION LOG</div>
+            <div class="messages" id="messages">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Control Panel -->
+    <div class="controls">
+        <button onclick="startListening()">Start Listening</button>
+        <button class="danger" onclick="stopListening()">Stop Listening</button>
+        <button onclick="startVideo()">Start Video</button>
+        <button class="danger" onclick="stopVideo()">Stop Video</button>
+        <button onclick="captureImage()">Capture Image</button>
+    </div>
 
     <script>
+        // Store previous messages to prevent duplicate rendering
+        let lastMessageCount = 0;
+
         // Update status
         async function updateStatus() {
             const status = await eel.js_state()();
-            document.getElementById('status').textContent = `Status: ${status}`;
+            document.getElementById('status').textContent = `STATUS: ${status}`;
         }
 
         // Start listening
         function startListening() {
-            // Simulating microphone input
+            // Simulating microphone input or notifying backend
             eel.js_mic("Hello JARVIS");
         }
 
@@ -55,15 +84,35 @@
             eel.handle_captured_image(imageData);
         }
 
-        // Update messages
+        // Update messages with styling
         async function updateMessages() {
             const newMessages = await eel.js_messages()();
             const messagesDiv = document.getElementById('messages');
-            newMessages.forEach(msg => {
-                const p = document.createElement('p');
-                p.textContent = `${msg.role}: ${msg.content}`;
-                messagesDiv.appendChild(p);
-            });
+            
+            // Only add new messages
+            if (newMessages.length > lastMessageCount) {
+                for (let i = lastMessageCount; i < newMessages.length; i++) {
+                    const msg = newMessages[i];
+                    
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `msg ${msg.role === 'user' ? 'msg-user' : 'msg-jarvis'}`;
+                    
+                    const roleDiv = document.createElement('div');
+                    roleDiv.className = 'msg-role';
+                    roleDiv.textContent = msg.role;
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.textContent = msg.content;
+                    
+                    msgDiv.appendChild(roleDiv);
+                    msgDiv.appendChild(contentDiv);
+                    messagesDiv.appendChild(msgDiv);
+                }
+                
+                // Auto-scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                lastMessageCount = newMessages.length;
+            }
         }
 
         // Setup
