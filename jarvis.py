@@ -170,6 +170,7 @@ def js_capture(image_data):
     with open('capture.png', 'wb') as f:
         f.write(image_bytes)
 
-# Initialize Eel and start the application
-eel.init('web')
+current_dir = os.path.dirname(os.path.abspath(__file__))
+web_dir = os.path.join(current_dir, 'web')
+eel.init(web_dir)
 eel.start('spider.html', port=44444)
