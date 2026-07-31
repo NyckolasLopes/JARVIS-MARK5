@@ -52,15 +52,64 @@
             document.getElementById('status').textContent = `STATUS: ${status}`;
         }
 
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        let isListening = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false; // Stop after each sentence to process
+            recognition.interimResults = false;
+            recognition.lang = 'pt-BR'; // Since the environment InputLanguage is pt-br
+
+            recognition.onstart = function() {
+                isListening = true;
+                eel.js_state("Listening...")();
+                document.getElementById('status').textContent = "STATUS: Listening...";
+                // Make the core pulse faster when listening
+                document.querySelector('.core-inner').style.animation = "core-pulse 0.5s ease-in-out infinite alternate";
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                console.log("Recognized:", transcript);
+                // Send the real spoken text to Python
+                eel.js_mic(transcript);
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                stopListening();
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                // If it should continuously listen, we can restart it here.
+                // For now, we wait for processing, Python will set state to "Thinking..."
+                document.querySelector('.core-inner').style.animation = "core-pulse 3s ease-in-out infinite alternate";
+            };
+        } else {
+            console.error("Speech Recognition API not supported in this browser.");
+        }
+
         // Start listening
         function startListening() {
-            // Simulating microphone input or notifying backend
-            eel.js_mic("Hello JARVIS");
+            if (recognition && !isListening) {
+                recognition.start();
+            } else if (!recognition) {
+                // Fallback for unsupported browsers
+                eel.js_mic("Hello JARVIS");
+            }
         }
 
         // Stop listening
         function stopListening() {
+            if (recognition && isListening) {
+                recognition.stop();
+            }
             eel.js_state("Available...")();
+            document.querySelector('.core-inner').style.animation = "core-pulse 3s ease-in-out infinite alternate";
         }
 
         // Start video
