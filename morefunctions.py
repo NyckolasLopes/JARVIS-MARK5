@@ -55,7 +55,7 @@ def logic(speech):
         if "yes" in response_img_or_text.result().lower():
             speak("Sure Sir, Generating Your Image")
             decohere_ai.generate(speech)
-            continue
+            return
         
         elif all(x in response_classifier.result().lower() for x in ("vision", "website", "call", "youtube")):
             print("\033[91mConfused with Classification. Using Default Response\033[0m")

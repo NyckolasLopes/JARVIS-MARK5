@@ -26,10 +26,14 @@ def QueryModifier(Query):
     return new_query.capitalize()
 
 def LoadMessages():
-    with open('ChatLog.json', 'r') as f:
-        messages = json.load(f)
-        return messages
-        return messages
+    try:
+        with open('ChatLog.json', 'r') as f:
+            messages = json.load(f)
+            return messages
+    except (FileNotFoundError, json.JSONDecodeError):
+        with open('ChatLog.json', 'w') as f:
+            json.dump([], f)
+        return []
 
 def GuiMessagesConverter(messages: list[dict[str, str]]):
     temp = []
