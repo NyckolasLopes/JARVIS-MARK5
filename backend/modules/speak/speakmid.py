@@ -11,10 +11,12 @@ def mid(text, func=None):
     # Safe text formatting for command line
     safe_text = str(text).replace('"', '\\"')
     
+    audio_ready = False
+    
     if elevenlabs_key:
         import requests
         print("Using ElevenLabs TTS...")
-        voice_id = "tS45q0QcrDHqHoaWdCDR" # Lax (Voz lendária solicitada pelo usuário)
+        voice_id = "onwK4e9ZLuTAKqWW03F9" # Daniel (Dan - Voz masculina gratuita)
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
         headers = {
             "Accept": "audio/mpeg",
@@ -31,20 +33,28 @@ def mid(text, func=None):
             if response.status_code == 200:
                 with open("data.mp3", "wb") as f:
                     f.write(response.content)
+                audio_ready = True
             else:
-                raise Exception(f"ElevenLabs failed: {response.text}")
+                print(f"ElevenLabs failed: {response.text}")
         except Exception as e:
             print(e)
+    
+    if not audio_ready:
+        try:
             command = f'edge-tts --voice "pt-BR-AntonioNeural" --pitch=+0Hz --rate=+10% --text "{safe_text}" --write-media "data.mp3"'
             os.system(command)
-    else:
-        command = f'edge-tts --voice "pt-BR-AntonioNeural" --pitch=+0Hz --rate=+10% --text "{safe_text}" --write-media "data.mp3"'
-        os.system(command)
+            audio_ready = True
+        except Exception as e:
+            print(f"Edge-TTS failed: {e}")
+    
+    if not audio_ready:
+        print(f"J.A.R.V.I.S : {text}")
+        return
 
     pygame.init()
     pygame.mixer.init()
-    pygame.mixer.music.load("data.mp3")
     try:
+        pygame.mixer.music.load("data.mp3")
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
