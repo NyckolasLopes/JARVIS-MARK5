@@ -10,7 +10,7 @@ import eel
 import pyautogui
 
 import base64
-from backend.modules.extra import GuiMessagesConverter, LoadMessages
+from backend.modules.extra import LoadMessages
 from dotenv import load_dotenv
 
 def get_api():
@@ -60,20 +60,21 @@ def MainExecution(Query: str):
     global WEBCAM, state
     Query = UniversalTranslator(Query) if 'en' not in InputLanguage.lower() else Query.capitalize()
 
-    if state != 'Available...':
+    if state not in ['Available...', 'Listening...']:
         return
     state = 'Thinking...'
     Decision = Operate(Query)
 
-    if 'realtime-webcam' in Decision:
+    if Decision and 'realtime-webcam' in Decision:
         python_call_to_start_video()
         print('Video Started')
         WEBCAM = True
-    elif 'close_webcam' in Decision:
+    elif Decision and 'close_webcam' in Decision:
         print('Video Stopped')
         python_call_to_stop_video()
         WEBCAM = False
-
+        
+    state = 'Available...'
     return Decision
 
 @eel.expose
@@ -83,10 +84,9 @@ def js_messages():
     with lock:
         messages = LoadMessages()
     if js_messageslist != messages:
-        new_messages = GuiMessagesConverter(messages[len(js_messageslist):])
-        js_messageslist = messages
-        return new_messages
-    return []
+        js_messageslist = messages.copy()
+        return messages
+    return messages
 
 @eel.expose
 def js_state(stat=None):
