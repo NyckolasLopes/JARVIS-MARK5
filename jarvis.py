@@ -116,14 +116,15 @@ def process_input(transcription):
 def main_listening_loop():
     """Background loop that uses Python speech_recognition to listen."""
     global state
+    
+    # Saudação inicial solicitada pelo usuário
+    state = 'Thinking...'
+    speak("Olá senhor, como vai?")
+    state = 'Available...'
+    
     while True:
         if state == 'Available...':
             state = 'Listening...'
-            try:
-                # Update frontend UI to show listening animation
-                eel.js_state(state)()
-            except:
-                pass
             
             transcription = Listen()
             

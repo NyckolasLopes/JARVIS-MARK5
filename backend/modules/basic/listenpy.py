@@ -17,7 +17,7 @@ def Listen():
         try:
             audio_data = recognizer.listen(source, timeout=5)  # Set timeout here
             print(Fore.GREEN + Style.BRIGHT + "Recognizing...")
-            text = recognizer.recognize_google(audio_data)
+            text = recognizer.recognize_google(audio_data, language="pt-BR")
             
             print(Fore.GREEN + Style.BRIGHT + f"User: {text}")
             return text
