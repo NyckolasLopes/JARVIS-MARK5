@@ -4,8 +4,44 @@ from functools import lru_cache
 import random
 # Removed lru_cache because caching TTS prevents repeating the same phrase
 def mid(text, func=None):
-    command = f'edge-tts --voice "en-CA-LiamNeural" --pitch=+9Hz --rate=+22% --text "{text}" --write-media "data.mp3"'
-    os.system(command)
+    from dotenv import load_dotenv
+    load_dotenv()
+    elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
+    
+    # Safe text formatting for command line
+    safe_text = str(text).replace('"', '\\"')
+    
+    if elevenlabs_key:
+        import requests
+        print("Using ElevenLabs TTS...")
+        voice_id = "tS45q0QcrDHqHoaWdCDR" # Lax (Voz lendária solicitada pelo usuário)
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": elevenlabs_key
+        }
+        data = {
+            "text": text,
+            "model_id": "eleven_multilingual_v3",
+            "language_code": "pt",
+            "voice_settings": {"stability": 0.5, "similarity_boost": 0.5}
+        }
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            if response.status_code == 200:
+                with open("data.mp3", "wb") as f:
+                    f.write(response.content)
+            else:
+                raise Exception(f"ElevenLabs failed: {response.text}")
+        except Exception as e:
+            print(e)
+            command = f'edge-tts --voice "pt-BR-AntonioNeural" --pitch=+0Hz --rate=+10% --text "{safe_text}" --write-media "data.mp3"'
+            os.system(command)
+    else:
+        command = f'edge-tts --voice "pt-BR-AntonioNeural" --pitch=+0Hz --rate=+10% --text "{safe_text}" --write-media "data.mp3"'
+        os.system(command)
+
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load("data.mp3")

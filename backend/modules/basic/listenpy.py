@@ -6,9 +6,10 @@ def Listen():
     colorama.init(autoreset=True)
     
     recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 200  
-    recognizer.pause_threshold = 0.5  
-    recognizer.operation_timeout = None  
+    recognizer.energy_threshold = 400  # Aumentado para ignorar ruído de fundo
+    recognizer.pause_threshold = 0.8  # Tempo de pausa padrão para não cortar a fala pela metade
+    recognizer.dynamic_energy_threshold = True
+    recognizer.operation_timeout = None
     
     with sr.Microphone() as source:
         print(Fore.YELLOW + Style.BRIGHT + "Listening...")

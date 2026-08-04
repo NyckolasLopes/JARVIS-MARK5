@@ -119,7 +119,7 @@ def main_listening_loop():
     
     # Saudação inicial solicitada pelo usuário
     state = 'Thinking...'
-    speak("Olá senhor, como vai?")
+    speak("Bem vindo senhor.")
     state = 'Available...'
     
     while True:
