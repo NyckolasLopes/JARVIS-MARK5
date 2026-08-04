@@ -10,17 +10,19 @@
 <body>
     <header>
         <h1>JARVIS</h1>
-        <div class="status-container">
-            <div class="status-indicator"></div>
-            <span id="status">System Starting...</span>
-        </div>
     </header>
 
     <div class="main-container">
         <!-- Animated Core Visualizer -->
         <div class="visualizer-container">
-            <div class="jarvis-core">
-                <div class="core-inner"></div>
+            <div class="core-wrapper">
+                <div class="jarvis-core">
+                    <canvas id="particleCanvas"></canvas>
+                </div>
+                <div class="status-container">
+                    <div class="status-indicator"></div>
+                    <span id="status">System Starting...</span>
+                </div>
             </div>
         </div>
 
@@ -33,13 +35,7 @@
         </div>
     </div>
 
-    <!-- Bottom Control Panel -->
-    <div class="controls">
-        <!-- Listening is now automatic, manual buttons removed -->
-        <button onclick="startVideo()">Start Video</button>
-        <button class="danger" onclick="stopVideo()">Stop Video</button>
-        <button onclick="captureImage()">Capture Image</button>
-    </div>
+
 
     <script>
         // Store previous messages to prevent duplicate rendering
@@ -182,6 +178,96 @@
             updateStatus();
             updateMessages();
         }, 1000);
+
+        // 3D Particle Sphere Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = 300;
+        let height = canvas.height = 300;
+        let particles = [];
+        
+        // Adjust these to change the look of the sphere
+        const numParticles = 400;
+        const sphereRadius = 100;
+        const perspective = 300;
+        
+        class Particle {
+            constructor() {
+                // Random position on a sphere
+                const theta = Math.random() * 2 * Math.PI;
+                const phi = Math.acos(Math.random() * 2 - 1);
+                
+                this.x = sphereRadius * Math.sin(phi) * Math.cos(theta);
+                this.y = sphereRadius * Math.sin(phi) * Math.sin(theta);
+                this.z = sphereRadius * Math.cos(phi);
+                
+                // Rotation speeds
+                this.rx = (Math.random() - 0.5) * 0.02;
+                this.ry = (Math.random() - 0.5) * 0.02;
+                this.rz = (Math.random() - 0.5) * 0.02;
+                
+                this.size = Math.random() * 2 + 1;
+                this.baseAlpha = Math.random() * 0.5 + 0.3;
+            }
+            
+            update(isActive) {
+                // Rotate around Y and Z axis
+                const speedMult = isActive ? 4 : 1; // Spin faster when active
+                
+                // Y rotation
+                let cosY = Math.cos(this.ry * speedMult);
+                let sinY = Math.sin(this.ry * speedMult);
+                let newX = this.x * cosY - this.z * sinY;
+                let newZ = this.z * cosY + this.x * sinY;
+                this.x = newX;
+                this.z = newZ;
+                
+                // Z rotation
+                let cosZ = Math.cos(this.rz * speedMult);
+                let sinZ = Math.sin(this.rz * speedMult);
+                newX = this.x * cosZ - this.y * sinZ;
+                let newY = this.y * cosZ + this.x * sinZ;
+                this.x = newX;
+                this.y = newY;
+            }
+            
+            draw() {
+                // Project 3D to 2D
+                const scale = perspective / (perspective + this.z);
+                const projectedX = this.x * scale + width / 2;
+                const projectedY = this.y * scale + height / 2;
+                
+                if (this.z < perspective) {
+                    ctx.beginPath();
+                    ctx.arc(projectedX, projectedY, this.size * scale, 0, Math.PI * 2);
+                    // Cyan glowing color
+                    const alpha = Math.max(0, this.baseAlpha * scale);
+                    ctx.fillStyle = `rgba(0, 243, 255, ${alpha})`;
+                    ctx.fill();
+                    ctx.shadowBlur = 10 * scale;
+                    ctx.shadowColor = '#00f3ff';
+                }
+            }
+        }
+        
+        for(let i=0; i<numParticles; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            // Check if status is thinking/listening to speed up animation
+            const statusText = document.getElementById('status').textContent;
+            const isActive = statusText.includes("Thinking") || statusText.includes("Listening");
+            
+            particles.forEach(p => {
+                p.update(isActive);
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+        
     </script>
 </body>
 </html>

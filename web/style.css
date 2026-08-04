@@ -51,7 +51,7 @@ body::after {
     pointer-events: none;
 }
 
-header, .main-container, .controls {
+header, .main-container {
     position: relative;
     z-index: 10;
 }
@@ -87,20 +87,37 @@ header h1::after {
     letter-spacing: 4px;
     color: rgba(255, 255, 255, 0.5);
 }
+/* Central Orb (Visualizer) */
+.visualizer-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.core-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
 
 .status-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 15px;
     font-family: 'Orbitron', sans-serif;
     font-size: 0.95rem;
     letter-spacing: 2px;
     color: var(--text-color);
     background: rgba(0, 243, 255, 0.05);
-    padding: 10px 20px;
+    padding: 12px 30px;
     border: 1px solid var(--glass-border);
     border-radius: 4px;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
 }
 
 .status-indicator {
@@ -117,32 +134,25 @@ header h1::after {
     100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--primary-color); }
 }
 
-/* Main Content Area */
-.main-container {
-    display: flex;
-    flex: 1;
-    padding: 2rem;
-    gap: 3rem;
-}
-
-/* Central Orb (Visualizer) */
-.visualizer-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
 .jarvis-core {
     width: 350px;
     height: 350px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,243,255,0.15) 0%, rgba(0,0,0,0) 60%);
+    background: radial-gradient(circle, rgba(0,243,255,0.10) 0%, rgba(0,0,0,0) 60%);
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+canvas#particleCanvas {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 5;
+    /* Optional glow behind the particles */
+    filter: drop-shadow(0 0 15px var(--primary-glow));
 }
 
 /* Outer rotating rings */
@@ -171,37 +181,8 @@ header h1::after {
     animation: spin 12s linear infinite reverse;
 }
 
-.core-inner {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    box-shadow: 0 0 50px var(--primary-glow), 0 0 100px var(--primary-glow);
-    animation: core-pulse 4s ease-in-out infinite alternate;
-    position: relative;
-}
-
-.core-inner::after {
-    content: '';
-    position: absolute;
-    top: -20px; left: -20px; right: -20px; bottom: -20px;
-    border-radius: 50%;
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    animation: ripple 2s infinite ease-out;
-}
-
 @keyframes spin {
     100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes core-pulse {
-    0% { transform: scale(0.9); opacity: 0.8; }
-    100% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 80px var(--primary-color), 0 0 150px var(--primary-color); }
-}
-
-@keyframes ripple {
-    0% { transform: scale(0.8); opacity: 1; }
-    100% { transform: scale(1.5); opacity: 0; }
 }
 
 /* Chat Interface */
@@ -303,43 +284,4 @@ header h1::after {
     color: rgba(255,255,255,0.5);
 }
 
-/* Controls */
-.controls {
-    padding: 1.5rem 3rem;
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    background: linear-gradient(0deg, rgba(2, 6, 17, 0.95) 0%, rgba(2, 6, 17, 0) 100%);
-    border-top: 1px solid rgba(0, 243, 255, 0.1);
-}
 
-button {
-    background: rgba(0, 243, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--primary-color);
-    padding: 0.8rem 2rem;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-}
-
-button:hover {
-    background: rgba(0, 243, 255, 0.2);
-    box-shadow: 0 0 15px var(--primary-glow);
-    text-shadow: 0 0 8px var(--primary-glow);
-}
-
-button.danger {
-    color: var(--danger-color);
-    border-color: rgba(255, 42, 75, 0.3);
-}
-
-button.danger:hover {
-    background: rgba(255, 42, 75, 0.15);
-    box-shadow: 0 0 15px rgba(255, 42, 75, 0.5);
-    text-shadow: 0 0 8px rgba(255, 42, 75, 0.5);
-}
