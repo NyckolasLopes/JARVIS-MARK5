@@ -36,7 +36,7 @@ def capture_and_recognize_image():
     # Perform image recognition using the Groq API
     try:
         # Initialize the Groq client
-        client = Groq(api_key=api)
+        client = Groq(api_key=API)
 
         # Send the image for recognition (replace with actual hosting URL if needed)
         chat_completion = client.chat.completions.create(
@@ -63,5 +63,6 @@ def capture_and_recognize_image():
     except Exception as e:
         print(f"Error during image recognition: {e}")
 
-# Capture the image and perform recognition
-capture_and_recognize_image()
+if __name__ == "__main__":
+    # Capture the image and perform recognition
+    capture_and_recognize_image()

@@ -21,6 +21,8 @@ from backend.modules.speak.speakmid import TTS as speakon
 from backend.modules.speak.speakoff import off as speakoff
 from morefunctions import logic
 
+ai_client_instance = AIClient()
+
 def speak(text):
     try:
         speakon(text)
@@ -314,7 +316,7 @@ def automation(user_input):
         execute_code(filter_python(pure_llama3(f"failed to execute {error} while running {code}")))
 
 def img_dealing(user_input):
-    response = AIClient.safe_predict(prompt_distiguisher_img + user_input)
+    response = ai_client_instance.safe_predict(prompt_distiguisher_img + user_input)
     if "img_from_camera" in response:
         capture_photo()
         return dealing.analyze_image_or_video("captured_photo.jpg", user_input)
@@ -350,14 +352,14 @@ def excel_dealing(user_input):
     dealing.excel_dealer(user_input)
 
 def powerpoint_dealing(user_input):
-    response = AIClient.safe_predict(powerpoint_distiguisher_prompt + f" {user_input}")
+    response = ai_client_instance.safe_predict(powerpoint_distiguisher_prompt + f" {user_input}")
     if "generate_pptx" in response:
         generate_powerpoint(user_input=user_input)
     else:
         dealing.powerpoint_dealer(user_input)
 
 def chat(user_input):
-    return AIClient.llama(user_input)
+    return ai_client_instance.llama(user_input)
 
 def application_dev(user_input):
     run_codebrew(user_input)
@@ -369,7 +371,7 @@ def Operate(user_input):
     logging.info(f"Received user input: {user_input}")
     
     q = prompt_main + user_input
-    response = AIClient.safe_predict(q)
+    response = ai_client_instance.safe_predict(q)
     
     logging.info(f"AI response: {response}")
     

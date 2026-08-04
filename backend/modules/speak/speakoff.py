@@ -7,8 +7,7 @@ from functools import lru_cache
 # Initialize pyttsx3 engine
 engine = pyttsx3.init()
 
-# Cache the 'off' function
-@lru_cache(maxsize=128)  # Adjust maxsize according to your memory constraints
+# Removed lru_cache because caching TTS prevents repeating the same phrase
 def off(text):
     colorama.init(autoreset=True)
     print(Fore.LIGHTBLUE_EX + Style.BRIGHT + f"J.A.R.V.I.S : {text}")
