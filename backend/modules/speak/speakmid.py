@@ -16,7 +16,7 @@ def mid(text, func=None):
     if elevenlabs_key:
         import requests
         print("Using ElevenLabs TTS...")
-        voice_id = "onwK4e9ZLuTAKqWW03F9" # Daniel (Dan - Voz masculina gratuita)
+        voice_id = "ulzsiMeCbfKyTPCNhCD5" # James - Deep Narrator
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
         headers = {
             "Accept": "audio/mpeg",

@@ -71,7 +71,9 @@ def pure_llama3(conv):
     return response.choices[0].message.content
 
 # Constants from environment variables with defaults
-CACHE_DIR = os.getenv('CACHE_DIR', 'Cache')
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_BASE_DIR, '..', '..'))
+CACHE_DIR = os.getenv('CACHE_DIR', os.path.join(_PROJECT_ROOT, 'Cache'))
 MODEL_LLM = os.getenv('MODEL_LLM', 'llama3-8b-8192')
 MODEL_EMBED = os.getenv('MODEL_EMBED', 'nomic-embed-text')
 GROQ_API = os.getenv("GROQ_API")

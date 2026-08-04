@@ -64,9 +64,10 @@ def MainExecution(Query: str):
     if state not in ['Available...', 'Listening...']:
         return
         
-    # Sistema de Wake Word
+    # Sistema de Wake Word (com variações comuns de reconhecimento)
     clean_query = Query.lower().strip(' .?!,')
-    if clean_query == "jarvis":
+    wake_words = ["jarvis", "charles", "jarves", "jarvi", "jarves", "travis", "jarvez"]
+    if clean_query in wake_words or any(clean_query.startswith(w) for w in wake_words):
         speak("Como posso te ajudar, Nyckolas?")
         state = 'Available...'
         return "wake_word_acknowledged"
