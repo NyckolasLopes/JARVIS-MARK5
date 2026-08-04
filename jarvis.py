@@ -194,5 +194,4 @@ def js_capture(image_data):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 web_dir = os.path.join(current_dir, 'web')
 eel.init(web_dir)
-# Added cmdline_args to bypass Chrome permission prompts for microphone access
-eel.start('spider.html', port=44444, cmdline_args=['--use-fake-ui-for-media-stream'])
+eel.start('spider.html', port=44444)
