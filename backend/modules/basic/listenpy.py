@@ -13,7 +13,7 @@ def Listen():
     
     with sr.Microphone() as source:
         print(Fore.YELLOW + Style.BRIGHT + "Listening...")
-        recognizer.adjust_for_ambient_noise(source, duration=1)
+        recognizer.adjust_for_ambient_noise(source, duration=0.2)
         
         try:
             audio_data = recognizer.listen(source, timeout=5)  # Set timeout here

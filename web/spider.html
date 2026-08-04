@@ -8,9 +8,9 @@
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
-    <!-- Startup Overlay to bypass browser security -->
-    <div id="startup-overlay" onclick="startSystem()">
-        <div class="startup-text">SYSTEM OFFLINE - CLICK TO POWER ON</div>
+    <!-- Automatic Startup Overlay (No click required) -->
+    <div id="startup-overlay" style="display: none;">
+        <div class="startup-text">SYSTEM OFFLINE</div>
     </div>
 
     <div class="main-container">
@@ -41,6 +41,11 @@
             // Let Python know the frontend is ready
             eel.frontend_ready()();
         }
+
+        // Start automatically without clicking
+        window.onload = function() {
+            startSystem();
+        };
 
         // Update status from Python
         async function updateStatus() {

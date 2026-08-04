@@ -121,9 +121,9 @@ def main_listening_loop():
     state = 'Thinking...'
     speak("Bem vindo senhor.")
     import time
-    time.sleep(1)
-    speak("Um momento enquanto eu me conecto.")
-    speak("Estou pronto, agora é só pedir.")
+    time.sleep(0.5)
+    speak("Um momento enquanto eu me conecto a nossa central.")
+    speak("Estou pronto, o que precisa?")
     
     state = 'Available...'
     
