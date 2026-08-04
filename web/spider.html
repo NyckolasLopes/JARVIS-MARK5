@@ -39,7 +39,7 @@
             document.getElementById('startup-overlay').style.display = 'none';
             systemStarted = true;
             // Let Python know the frontend is ready
-            eel.frontend_ready();
+            eel.frontend_ready()();
         }
 
         // Update status from Python
@@ -104,7 +104,7 @@
         }
 
         // Setup
-        eel.setup();
+        eel.setup()();
 
         // Update status and messages every second
         setInterval(() => {
