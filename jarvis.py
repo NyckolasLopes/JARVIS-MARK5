@@ -120,6 +120,11 @@ def main_listening_loop():
     # Saudação inicial solicitada pelo usuário
     state = 'Thinking...'
     speak("Bem vindo senhor.")
+    import time
+    time.sleep(1)
+    speak("Um momento enquanto eu me conecto.")
+    speak("Estou pronto, agora é só pedir.")
+    
     state = 'Available...'
     
     while True:
