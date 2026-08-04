@@ -67,10 +67,34 @@ def MainExecution(Query: str):
     # Sistema de Wake Word (com variações comuns de reconhecimento)
     clean_query = Query.lower().strip(' .?!,')
     wake_words = ["jarvis", "charles", "jarves", "jarvi", "travis", "jarvez", "diarves", "chaves", "garves", "jarve"]
-    if clean_query in wake_words or any(clean_query.startswith(w) for w in wake_words):
-        speak("Como posso te ajudar, Nyckolas?")
-        state = 'Available...'
-        return "wake_word_acknowledged"
+    hey_prefixes = ["hey ", "ei ", "ey ", "hei "]
+    
+    # Remove "hey/ei" do início se presente
+    stripped = clean_query
+    for prefix in hey_prefixes:
+        if stripped.startswith(prefix):
+            stripped = stripped[len(prefix):].strip()
+            break
+    
+    # Verifica se começa com uma wake word
+    matched_wake = None
+    for w in wake_words:
+        if stripped == w or stripped.startswith(w + " ") or stripped.startswith(w + ","):
+            matched_wake = w
+            break
+    
+    if matched_wake:
+        # Remove o wake word para pegar o comando restante
+        remainder = stripped[len(matched_wake):].strip(' ,.')
+        
+        if not remainder:
+            # Só falou "Jarvis" ou "Hey Jarvis" sem comando
+            speak("Como posso te ajudar, Nyckolas?")
+            state = 'Available...'
+            return "wake_word_acknowledged"
+        else:
+            # Falou "Jarvis pesquise..." - executa o comando direto
+            Query = remainder.capitalize()
         
     state = 'Thinking...'
     Decision = Operate(Query)

@@ -9,6 +9,7 @@ import chromadb
 import ollama
 from contextlib import contextmanager
 from logging.handlers import RotatingFileHandler
+import google.generativeai as genai
 
 
 # Setup logging with rotation
@@ -66,8 +67,20 @@ def store_conversations(prompt, response):
         logger.error(f"Error storing conversation: {e}")
 
 def pure_llama3(conv):
-    client = Groq(GROQ_API)
-    response = client.chat.completions.create(messages=conv, model=MODEL_LLM)
+    # Usar Gemini como primário
+    if gemini_model:
+        try:
+            prompt = conv if isinstance(conv, str) else "\n".join([m.get("content", "") for m in conv])
+            response = gemini_model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            logger.error(f"Gemini error in pure_llama3: {e}")
+    
+    # Fallback: Groq
+    client_groq = Groq(api_key=GROQ_API)
+    if isinstance(conv, str):
+        conv = [{"role": "user", "content": conv}]
+    response = client_groq.chat.completions.create(messages=conv, model=MODEL_LLM)
     return response.choices[0].message.content
 
 # Constants from environment variables with defaults
@@ -88,6 +101,18 @@ except Exception as e:
     client = None
 chromadb_client = chromadb.Client()
 
+# Initialize Gemini
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+gemini_model = None
+if GEMINI_API_KEY:
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+        logger.info("Gemini initialized successfully as primary LLM.")
+    except Exception as e:
+        logger.error(f"Failed to initialize Gemini: {e}")
+        gemini_model = None
+
 messages_normal = [
     {"role": "system", "content": "You are named JARVIS, inspired by Iron Man, brought to life by Likhith Sai"},
     {"role": "system", "content": "You can do anything on a laptop."},
@@ -100,13 +125,17 @@ class AIClient:
         self.groq_client = Groq(api_key=GROQ_API)
 
     def safe_predict(self, prompt):
-        """Predict response using the Gradio client with caching."""
+        """Predict response using Gemini (primary) or Groq (fallback) with caching."""
         if prompt in cache and cache[prompt] is not None:
             return cache[prompt]
 
         try:
-            if client is None:
-                # Fallback to Groq if HuggingFace space is down
+            # Primary: Gemini
+            if gemini_model:
+                response = gemini_model.generate_content(prompt)
+                result = response.text.strip()
+            else:
+                # Fallback: Groq
                 response = self.groq_client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
                     model=MODEL_LLM,
@@ -115,15 +144,7 @@ class AIClient:
                     top_p=0.9
                 )
                 result = response.choices[0].message.content
-            else:
-                result = client.predict(
-                    prompt=prompt,
-                    temperature=0.9,
-                    max_new_tokens=256,
-                    top_p=0.9,
-                    repetition_penalty=1.2,
-                    api_name="/chat"
-                ).replace("</s>", "")
+
             if result:
                 cache[prompt] = result
                 return result
@@ -132,26 +153,42 @@ class AIClient:
                 return "No result returned from API."
         except Exception as e:
             logger.error(f"Error during predict call: {e}")
-            return "An error occurred while fetching the result."
+            # Try Groq as emergency fallback
+            try:
+                response = self.groq_client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model=MODEL_LLM,
+                    max_tokens=256
+                )
+                return response.choices[0].message.content
+            except:
+                return "An error occurred while fetching the result."
 
     def llama(self, user_input):
-        """Generate a response using the Groq client with caching and storage."""
+        """Generate a conversational response using Gemini (primary) or Groq (fallback)."""
         if user_input in cache and cache[user_input] is not None:
             return cache[user_input]
-        else:
-            try:
+        
+        try:
+            if gemini_model:
+                # Build conversation context for Gemini
+                context = "Você é o JARVIS, um assistente de IA inspirado no Iron Man. Responda em português de forma concisa e útil.\n\n"
+                response = gemini_model.generate_content(context + user_input)
+                result = response.text.strip()
+            else:
                 chat_completion = self.groq_client.chat.completions.create(
                     messages=messages_normal + [{"role": "user", "content": user_input}],
                     model=MODEL_LLM,
                 )
-                response = chat_completion.choices[0].message.content
-                messages_normal.append({"role": "assistant", "content": response})
-                cache[user_input] = response
-                store_conversations(user_input, response)
-                return response if response else "No result returned from API."
-            except Exception as e:
-                logger.error(f"Error in llama: {e}")
-                return "An error occurred while fetching the result."
+                result = chat_completion.choices[0].message.content
+            
+            messages_normal.append({"role": "assistant", "content": result})
+            cache[user_input] = result
+            store_conversations(user_input, result)
+            return result if result else "No result returned from API."
+        except Exception as e:
+            logger.error(f"Error in llama: {e}")
+            return "An error occurred while fetching the result."
 
     def optimize_method(self, prompt):
         """Optimize method for better performance."""
