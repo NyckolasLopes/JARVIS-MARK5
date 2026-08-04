@@ -118,9 +118,10 @@ def main_listening_loop():
     """Background loop that uses Python speech_recognition to listen."""
     global state
     
-    # Saudação inicial - otimizada em 2 chamadas para velocidade
+    # Saudação inicial
     state = 'Thinking...'
-    speak("Bem vindo senhor. Um momento enquanto eu me conecto a nossa central.")
+    speak("Bem vindo senhor")
+    speak("Um momento enquanto eu me conecto a nossa central")
     speak("Estou pronto, vamos começar?")
     state = 'Available...'
     

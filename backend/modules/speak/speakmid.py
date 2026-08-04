@@ -12,6 +12,14 @@ _pygame_initialized = False
 def mid(text, func=None):
     global _pygame_initialized
     
+    # Liberar o arquivo de áudio anterior antes de gravar um novo
+    if _pygame_initialized:
+        try:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
+        except:
+            pass
+    
     safe_text = str(text).replace('"', '\\"')
     audio_ready = False
     
