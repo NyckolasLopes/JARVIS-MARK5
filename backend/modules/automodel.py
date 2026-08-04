@@ -310,7 +310,7 @@ def automation(user_input):
     code = filter_python(pure_llama3(prompt))
     success, error = execute_code(code)
     if success:
-        return pure_llama3(code + success)
+        return pure_llama3(f"O código executou com sucesso. Código: {code}\nResultado: {str(success)}")
     else:
         print(error)
         execute_code(filter_python(pure_llama3(f"failed to execute {error} while running {code}")))
