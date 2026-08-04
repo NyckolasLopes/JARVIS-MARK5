@@ -20,26 +20,26 @@
 
 body {
     font-family: 'Chakra Petch', sans-serif;
-    background-color: var(--bg-color);
+    background-color: #000; /* Pure black */
     color: var(--text-color);
     height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    margin: 0;
 }
 
-/* Startup Overlay */
 #startup-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--bg-color);
+    background: #000;
     z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    backdrop-filter: blur(10px);
 }
 
 .startup-text {
@@ -51,31 +51,23 @@ body {
     text-shadow: 0 0 15px var(--primary-glow);
 }
 
-/* Hexagon Grid Background */
-body::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: 
-        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: 0;
-    pointer-events: none;
-}
-
-body::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at 50% 50%, transparent 20%, #020611 100%);
-    z-index: 1;
-    pointer-events: none;
+/* Hexagon Grid Background - REMOVED */
+body::before, body::after {
+    display: none;
 }
 
 header, .main-container {
-    position: relative;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 10;
+}
+
+/* Main Content Area */
+.main-container {
+    display: flex;
+    flex: 1;
+    padding: 0;
+    margin: 0;
 }
 
 /* Header */
@@ -122,7 +114,10 @@ header h1::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3rem;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: absolute;
 }
 
 .status-container {
@@ -130,24 +125,12 @@ header h1::after {
 }
 
 .status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
-    animation: pulse 1.5s infinite alternate;
-}
-
-@keyframes pulse {
-    0% { transform: scale(0.8); opacity: 0.5; }
-    100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--primary-color); }
+    display: none;
 }
 
 .jarvis-core {
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,243,255,0.10) 0%, rgba(0,0,0,0) 60%);
+    width: 100vw;
+    height: 100vh;
     position: relative;
     display: flex;
     justify-content: center;
@@ -155,39 +138,16 @@ header h1::after {
 }
 
 canvas#particleCanvas {
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
+    width: 100vw;
+    height: 100vh;
     position: relative;
     z-index: 5;
-    /* Optional glow behind the particles */
-    filter: drop-shadow(0 0 15px var(--primary-glow));
+    filter: drop-shadow(0 0 20px var(--primary-glow));
 }
 
-/* Outer rotating rings */
+/* Outer rotating rings - REMOVED */
 .jarvis-core::before, .jarvis-core::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.jarvis-core::before {
-    width: 100%;
-    height: 100%;
-    border: 2px solid transparent;
-    border-top: 2px solid var(--primary-color);
-    border-bottom: 2px solid var(--primary-color);
-    animation: spin 8s linear infinite;
-    filter: drop-shadow(0 0 10px var(--primary-glow));
-}
-
-.jarvis-core::after {
-    width: 85%;
-    height: 85%;
-    border: 2px dashed rgba(0, 243, 255, 0.4);
-    animation: spin 12s linear infinite reverse;
+    display: none;
 }
 
 @keyframes spin {

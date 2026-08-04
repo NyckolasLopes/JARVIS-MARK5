@@ -105,22 +105,6 @@ def js_state(stat=None):
         state = stat
     return state
 
-@eel.expose
-def js_mic(transcription):
-    """Handles microphone input."""
-    print(transcription)
-    if not working:
-        work = threading.Thread(target=process_input, args=(transcription,), daemon=True)
-        work.start()
-        working.append(work)
-    else:
-        if working[0].is_alive():
-            return
-        working.pop()
-        work = threading.Thread(target=process_input, args=(transcription,), daemon=True)
-        work.start()
-        working.append(work)
-
 def process_input(transcription):
     global WEBCAM
     result = MainExecution(transcription)
@@ -128,6 +112,34 @@ def process_input(transcription):
         print('Video Stopped')
         python_call_to_stop_video()
         WEBCAM = False
+
+def main_listening_loop():
+    """Background loop that uses Python speech_recognition to listen."""
+    global state
+    while True:
+        if state == 'Available...':
+            state = 'Listening...'
+            try:
+                # Update frontend UI to show listening animation
+                eel.js_state(state)()
+            except:
+                pass
+            
+            transcription = Listen()
+            
+            if transcription:
+                # Run process in a separate thread so listening loop can reset after
+                t = threading.Thread(target=process_input, args=(transcription,), daemon=True)
+                t.start()
+                t.join() # Wait for processing to finish before listening again
+            else:
+                state = 'Available...'
+
+@eel.expose
+def frontend_ready():
+    """Triggered by JS when the UI overlay is clicked, starting the Python listening loop."""
+    print("Frontend ready. Starting Python listening loop...")
+    threading.Thread(target=main_listening_loop, daemon=True).start()
 
 @eel.expose
 def python_call_to_start_video():
@@ -182,4 +194,5 @@ def js_capture(image_data):
 current_dir = os.path.dirname(os.path.abspath(__file__))
 web_dir = os.path.join(current_dir, 'web')
 eel.init(web_dir)
-eel.start('spider.html', port=44444)
+# Added cmdline_args to bypass Chrome permission prompts for microphone access
+eel.start('spider.html', port=44444, cmdline_args=['--use-fake-ui-for-media-stream'])
