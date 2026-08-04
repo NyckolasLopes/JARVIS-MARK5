@@ -29,6 +29,28 @@ body {
     position: relative;
 }
 
+/* Startup Overlay */
+#startup-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg-color);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+}
+
+.startup-text {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    animation: pulse 1.5s infinite alternate;
+    text-shadow: 0 0 15px var(--primary-glow);
+}
+
 /* Hexagon Grid Background */
 body::before {
     content: '';
@@ -104,20 +126,7 @@ header h1::after {
 }
 
 .status-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.95rem;
-    letter-spacing: 2px;
-    color: var(--text-color);
-    background: rgba(0, 243, 255, 0.05);
-    padding: 12px 30px;
-    border: 1px solid var(--glass-border);
-    border-radius: 4px;
-    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+    display: none; /* User requested removal */
 }
 
 .status-indicator {

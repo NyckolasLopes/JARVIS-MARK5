@@ -8,6 +8,11 @@
     <script type="text/javascript" src="/eel.js"></script>
 </head>
 <body>
+    <!-- Startup Overlay to bypass browser security -->
+    <div id="startup-overlay" onclick="startSystem()">
+        <div class="startup-text">SYSTEM OFFLINE - CLICK TO POWER ON</div>
+    </div>
+
     <header>
         <h1>JARVIS</h1>
     </header>
@@ -40,6 +45,15 @@
     <script>
         // Store previous messages to prevent duplicate rendering
         let lastMessageCount = 0;
+        let systemStarted = false;
+
+        function startSystem() {
+            document.getElementById('startup-overlay').style.display = 'none';
+            systemStarted = true;
+            if (recognition && !isListening) {
+                try { recognition.start(); } catch(e) {}
+            }
+        }
 
         // Update status and control automatic listening
         async function updateStatus() {
@@ -47,7 +61,7 @@
             document.getElementById('status').textContent = `STATUS: ${status}`;
 
             // Automatic Hands-Free Listening Logic
-            if (status === "Available..." && !isListening && recognition) {
+            if (systemStarted && status === "Available..." && !isListening && recognition) {
                 try {
                     recognition.start();
                 } catch(e) { }
@@ -188,31 +202,35 @@
         
         // Adjust these to change the look of the sphere
         const numParticles = 400;
-        const sphereRadius = 100;
+        const baseRadius = 80;
         const perspective = 300;
+        
+        let targetScale = 1.0;
+        let currentScale = 1.0;
+        let time = 0;
         
         class Particle {
             constructor() {
-                // Random position on a sphere
+                // Random position on a unit sphere
                 const theta = Math.random() * 2 * Math.PI;
                 const phi = Math.acos(Math.random() * 2 - 1);
                 
-                this.x = sphereRadius * Math.sin(phi) * Math.cos(theta);
-                this.y = sphereRadius * Math.sin(phi) * Math.sin(theta);
-                this.z = sphereRadius * Math.cos(phi);
+                this.x = Math.sin(phi) * Math.cos(theta);
+                this.y = Math.sin(phi) * Math.sin(theta);
+                this.z = Math.cos(phi);
                 
-                // Rotation speeds
-                this.rx = (Math.random() - 0.5) * 0.02;
-                this.ry = (Math.random() - 0.5) * 0.02;
-                this.rz = (Math.random() - 0.5) * 0.02;
+                // Rotation speeds (slower as requested)
+                this.rx = (Math.random() - 0.5) * 0.01;
+                this.ry = (Math.random() - 0.5) * 0.01;
+                this.rz = (Math.random() - 0.5) * 0.01;
                 
-                this.size = Math.random() * 2 + 1;
-                this.baseAlpha = Math.random() * 0.5 + 0.3;
+                this.size = Math.random() * 2.5 + 1;
+                this.baseAlpha = Math.random() * 0.6 + 0.4;
             }
             
             update(isActive) {
-                // Rotate around Y and Z axis
-                const speedMult = isActive ? 4 : 1; // Spin faster when active
+                // Slower rotation
+                const speedMult = isActive ? 1.5 : 0.4;
                 
                 // Y rotation
                 let cosY = Math.cos(this.ry * speedMult);
@@ -231,21 +249,26 @@
                 this.y = newY;
             }
             
-            draw() {
-                // Project 3D to 2D
-                const scale = perspective / (perspective + this.z);
-                const projectedX = this.x * scale + width / 2;
-                const projectedY = this.y * scale + height / 2;
+            draw(radiusMult) {
+                // Apply base radius and current animation scale multiplier
+                const sx = this.x * baseRadius * radiusMult;
+                const sy = this.y * baseRadius * radiusMult;
+                const sz = this.z * baseRadius * radiusMult;
                 
-                if (this.z < perspective) {
+                // Project 3D to 2D
+                const scale = perspective / (perspective + sz);
+                const projectedX = sx * scale + width / 2;
+                const projectedY = sy * scale + height / 2;
+                
+                if (sz < perspective) {
                     ctx.beginPath();
                     ctx.arc(projectedX, projectedY, this.size * scale, 0, Math.PI * 2);
-                    // Cyan glowing color
+                    // White color
                     const alpha = Math.max(0, this.baseAlpha * scale);
-                    ctx.fillStyle = `rgba(0, 243, 255, ${alpha})`;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
                     ctx.fill();
-                    ctx.shadowBlur = 10 * scale;
-                    ctx.shadowColor = '#00f3ff';
+                    ctx.shadowBlur = 15 * scale;
+                    ctx.shadowColor = '#ffffff';
                 }
             }
         }
@@ -256,13 +279,29 @@
         
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            // Check if status is thinking/listening to speed up animation
+            
+            // Check status for animations
+            // Note: The status container is hidden via CSS, but we can still read its text!
             const statusText = document.getElementById('status').textContent;
+            
+            if (statusText.includes("Listening")) {
+                targetScale = 1.6; // Expands when waiting for user to speak
+            } else {
+                targetScale = 1.0; // Normal size when thinking or idle
+            }
+            
+            // Smoothly interpolate the scale
+            currentScale += (targetScale - currentScale) * 0.05;
+            
+            // Add a slow breathing oscillation effect
+            time += 0.03;
+            const breathingScale = currentScale + Math.sin(time) * 0.08;
+            
             const isActive = statusText.includes("Thinking") || statusText.includes("Listening");
             
             particles.forEach(p => {
                 p.update(isActive);
-                p.draw();
+                p.draw(breathingScale);
             });
             requestAnimationFrame(animate);
         }
