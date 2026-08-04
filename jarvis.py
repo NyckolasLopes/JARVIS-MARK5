@@ -66,7 +66,7 @@ def MainExecution(Query: str):
         
     # Sistema de Wake Word (com variações comuns de reconhecimento)
     clean_query = Query.lower().strip(' .?!,')
-    wake_words = ["jarvis", "charles", "jarves", "jarvi", "jarves", "travis", "jarvez"]
+    wake_words = ["jarvis", "charles", "jarves", "jarvi", "travis", "jarvez", "diarves", "chaves", "garves", "jarve"]
     if clean_query in wake_words or any(clean_query.startswith(w) for w in wake_words):
         speak("Como posso te ajudar, Nyckolas?")
         state = 'Available...'
@@ -118,14 +118,10 @@ def main_listening_loop():
     """Background loop that uses Python speech_recognition to listen."""
     global state
     
-    # Saudação inicial solicitada pelo usuário
+    # Saudação inicial - otimizada em 2 chamadas para velocidade
     state = 'Thinking...'
-    speak("Bem vindo senhor.")
-    import time
-    time.sleep(0.2)
-    speak("Um momento enquanto eu me conecto a nossa central.")
+    speak("Bem vindo senhor. Um momento enquanto eu me conecto a nossa central.")
     speak("Estou pronto, vamos começar?")
-    
     state = 'Available...'
     
     while True:

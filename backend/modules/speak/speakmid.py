@@ -2,26 +2,26 @@ import os
 import pygame
 from functools import lru_cache
 import random
-# Removed lru_cache because caching TTS prevents repeating the same phrase
+from dotenv import load_dotenv
+
+load_dotenv()
+_ELEVENLABS_KEY = os.getenv("ELEVENLABS_API_KEY")
+_VOICE_ID = "nPczCjzI2devNBz1zQrb" # Brian - Deep, Resonant and Comforting
+_pygame_initialized = False
+
 def mid(text, func=None):
-    from dotenv import load_dotenv
-    load_dotenv()
-    elevenlabs_key = os.getenv("ELEVENLABS_API_KEY")
+    global _pygame_initialized
     
-    # Safe text formatting for command line
     safe_text = str(text).replace('"', '\\"')
-    
     audio_ready = False
     
-    if elevenlabs_key:
+    if _ELEVENLABS_KEY:
         import requests
-        print("Using ElevenLabs TTS...")
-        voice_id = "nPczCjzI2devNBz1zQrb" # Brian - Deep, Resonant and Comforting
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{_VOICE_ID}?output_format=mp3_22050_32&optimize_streaming_latency=3"
         headers = {
             "Accept": "audio/mpeg",
             "Content-Type": "application/json",
-            "xi-api-key": elevenlabs_key
+            "xi-api-key": _ELEVENLABS_KEY
         }
         data = {
             "text": text,
@@ -29,7 +29,7 @@ def mid(text, func=None):
             "voice_settings": {"stability": 0.5, "similarity_boost": 0.5}
         }
         try:
-            response = requests.post(url, json=data, headers=headers)
+            response = requests.post(url, json=data, headers=headers, timeout=10)
             if response.status_code == 200:
                 with open("data.mp3", "wb") as f:
                     f.write(response.content)
@@ -51,8 +51,11 @@ def mid(text, func=None):
         print(f"J.A.R.V.I.S : {text}")
         return
 
-    pygame.init()
-    pygame.mixer.init()
+    if not _pygame_initialized:
+        pygame.init()
+        pygame.mixer.init()
+        _pygame_initialized = True
+    
     try:
         pygame.mixer.music.load("data.mp3")
         pygame.mixer.music.play()
@@ -60,9 +63,6 @@ def mid(text, func=None):
             pygame.time.Clock().tick(10)
     except Exception as e:
         print(e)
-    finally:
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
 
 def TTS(Text, func=lambda r=None: True):
     Data = str(Text).split('.')
