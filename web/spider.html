@@ -35,8 +35,7 @@
 
     <!-- Bottom Control Panel -->
     <div class="controls">
-        <button onclick="startListening()">Start Listening</button>
-        <button class="danger" onclick="stopListening()">Stop Listening</button>
+        <!-- Listening is now automatic, manual buttons removed -->
         <button onclick="startVideo()">Start Video</button>
         <button class="danger" onclick="stopVideo()">Stop Video</button>
         <button onclick="captureImage()">Capture Image</button>
@@ -46,10 +45,21 @@
         // Store previous messages to prevent duplicate rendering
         let lastMessageCount = 0;
 
-        // Update status
+        // Update status and control automatic listening
         async function updateStatus() {
             const status = await eel.js_state()();
             document.getElementById('status').textContent = `STATUS: ${status}`;
+
+            // Automatic Hands-Free Listening Logic
+            if (status === "Available..." && !isListening && recognition) {
+                try {
+                    recognition.start();
+                } catch(e) { }
+            } else if (status !== "Available..." && status !== "Listening..." && isListening && recognition) {
+                try {
+                    recognition.stop();
+                } catch(e) { }
+            }
         }
 
         // Speech Recognition Setup
