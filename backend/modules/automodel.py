@@ -53,7 +53,9 @@ extension_prompt = """
 """
 
 prompt_main = """
-Given the user query, identify and respond with the relevant tags from the following list: [realtime-webcam, automation, real-time-knowledge, img-dealing, website-dealing, screenshare, video-dealing, pdf-dealing, excel-dealing, powerpoint-dealing, chat, application-dev, web-app, click]. If the query involves multiple tasks, combine the appropriate tags with a plus sign. Respond with only the tags and nothing else.
+Given the user query, identify and respond with the relevant tags from the exact following list: [realtime-webcam, automation, real-time-knowledge, img-dealing, website-dealing, screenshare, video-dealing, pdf-dealing, excel-dealing, powerpoint-dealing, chat, application-dev, web-app, click].
+CRITICAL RULE: You MUST ONLY use the tags from the list above. DO NOT invent new tags like 'forecast'. If it is about weather, news, or internet search, use 'real-time-knowledge'. If the query involves multiple tasks, combine the appropriate tags with a plus sign. Respond with ONLY the tags and nothing else.
+
 Examples:
 Query: "Read the selected PDF and summarize it."
 Response: pdf-dealing+automation
@@ -68,6 +70,9 @@ Query: "Make a portfolio"
 Response: website-dealing
 
 Query: "Who won the elections"
+Response: real-time-knowledge
+
+Query: "What is the weather forecast?"
 Response: real-time-knowledge
 
 Query: "Download video from website"

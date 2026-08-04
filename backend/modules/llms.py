@@ -104,14 +104,15 @@ chromadb_client = chromadb.Client()
 # Initialize Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 gemini_model = None
-if GEMINI_API_KEY:
-    try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        gemini_model = genai.GenerativeModel('gemini-2.0-flash')
-        logger.info("Gemini initialized successfully as primary LLM.")
-    except Exception as e:
-        logger.error(f"Failed to initialize Gemini: {e}")
-        gemini_model = None
+# Gemini desativado temporariamente - as chaves fornecidas não têm cota (Free tier limit: 0)
+# if GEMINI_API_KEY:
+#     try:
+#         genai.configure(api_key=GEMINI_API_KEY)
+#         gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+#         logger.info("Gemini initialized successfully as primary LLM.")
+#     except Exception as e:
+#         logger.error(f"Failed to initialize Gemini: {e}")
+#         gemini_model = None
 
 messages_normal = [
     {"role": "system", "content": "You are named JARVIS, inspired by Iron Man, brought to life by Likhith Sai"},
