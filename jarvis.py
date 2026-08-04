@@ -1,7 +1,5 @@
 import json
 import threading
-from backend.modules.automodel import Operate
-from backend.modules.basic.listenpy import Listen
 import os
 import mtranslate as mt
 from threading import Lock
@@ -31,6 +29,9 @@ def get_api():
     return None
 
 os.environ['GROQ_API'] = get_api()
+
+from backend.modules.automodel import Operate
+from backend.modules.basic.listenpy import Listen
 
 def run_docker():
     import os
