@@ -30,7 +30,7 @@ def get_api():
 
 os.environ['GROQ_API'] = get_api()
 
-from backend.modules.automodel import Operate
+from backend.modules.automodel import Operate, speak
 from backend.modules.basic.listenpy import Listen
 
 def run_docker():
@@ -63,6 +63,14 @@ def MainExecution(Query: str):
 
     if state not in ['Available...', 'Listening...']:
         return
+        
+    # Sistema de Wake Word
+    clean_query = Query.lower().strip(' .?!,')
+    if clean_query == "jarvis":
+        speak("Como posso te ajudar, Nyckolas?")
+        state = 'Available...'
+        return "wake_word_acknowledged"
+        
     state = 'Thinking...'
     Decision = Operate(Query)
 
